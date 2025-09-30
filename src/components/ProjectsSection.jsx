@@ -3,15 +3,24 @@ import { ArrowRight, ExternalLink, Github } from "lucide-react";
 const projects = [
   {
     id: 1,
+    title: "Giphy GIF Exploration app",
+    description: "Interactive GIF exploration app with trending GIFs, search, category filters, and favorites management using the Giphy API. Built with React, Tailwind CSS, and Context API for state management.",
+    image: "/projects/GIF.png",
+    tags: ["React", "TailwindCSS","Context API", "API"],
+    demoUrl: "https://giffyweb.netlify.app/",
+    githubUrl: "https://github.com/anwar9136/Giphy-web",
+  },
+  {
+    id: 2,
     title: "Movie Explorer",
     description: "Movie exploration app with search, detailed view, and favorites management using a public movie API.",
     image: "/projects/movie-app.png",
-    tags: ["React", "TailwindCSS", "API"],
+    tags: ["React", "TailwindCSS","Redux", "API"],
     demoUrl: "https://movie-explorer-anwar.netlify.app/",
     githubUrl: "https://github.com/anwar9136/react-movie-app",
   },
   {
-    id: 2,
+    id: 3,
     title: "Todo App",
     description:
       "Task management app with add, edit, delete, and completion tracking features.",
