@@ -16,10 +16,7 @@ export const Navbar = () => {
   const [activeSection, setActiveSection] = useState("#hero");
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -46,9 +43,7 @@ export const Navbar = () => {
 
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    return () => (document.body.style.overflow = "");
   }, [isMenuOpen]);
 
   useEffect(() => {
@@ -60,89 +55,101 @@ export const Navbar = () => {
   }, []);
 
   return (
-    <nav
-      className={cn(
-        "fixed w-full z-40 transition-all duration-300",
-        isScrolled
-          ? "py-3 bg-background/90 backdrop-blur-md shadow-md shadow-black/5 border-b border-border/50"
-          : "py-5 bg-gradient-to-b from-background/60 via-background/30 to-transparent backdrop-blur-sm"
-      )}
-    >
-      <div className="container flex items-center justify-between">
-        <a
-          className="text-xl font-bold text-primary flex items-center gap-1 transition-opacity hover:opacity-80" // CHANGED: added gap-2 for spacing next to the new logo image
-          href="#hero"
-        >
-          {/* ADDED: astronaut-on-moon logo, save it in your /public folder (e.g. /public/logo.png) */}
-          <img
-            src="/icons/a6.png"
-            alt="Anwar's Portfolio logo"
-            className="h-14 w-14 object-contain flex-shrink-0"
-          />
-          <span className="relative z-10">
-            <span className="text-glow text-foreground"> Anwar's </span>{" "}
-            Portfolio
-          </span>
-        </a>
+    <nav className="fixed w-full z-[100] transition-all duration-300">
+      {/* Navbar Bar */}
+      <div
+        className={cn(
+          "py-3 md:py-5 bg-background/95 backdrop-blur-md border-b border-border/50 shadow-md",
+          !isScrolled && "md:bg-gradient-to-b md:from-background/70 md:via-background/40 md:to-transparent"
+        )}
+      >
+        <div className="container mx-auto px-6 flex items-center justify-between">
+          <a href="#hero" className="flex items-center gap-3">
+            <img
+              src="/icons/a6.png"
+              alt="Logo"
+              className="h-12 w-12 object-contain"
+            />
+            <span className="text-xl font-bold text-primary">
+              Anwar's <span className="text-glow">Portfolio</span>
+            </span>
+          </a>
 
-        {/* desktop nav */}
-        <div className="hidden md:flex space-x-8">
-          {navItems.map((item, key) => (
-            <a
-              key={key}
-              href={item.href}
-              className={cn(
-                "relative group text-foreground/90 hover:text-primary transition-colors duration-300",
-                activeSection === item.href && "text-primary"
-              )}
-            >
-              {item.name}
-              <span
-                className={cn(
-                  "absolute -bottom-1 left-0 h-[2px] bg-primary transition-all duration-300",
-                  activeSection === item.href ? "w-full" : "w-0 group-hover:w-full"
-                )}
-              />
-            </a>
-          ))}
-        </div>
-
-        {/* mobile nav toggle */}
-        <button
-          onClick={() => setIsMenuOpen((prev) => !prev)}
-          className="md:hidden p-2 text-foreground z-50"
-          aria-label={isMenuOpen ? "Close Menu" : "Open Menu"}
-          aria-expanded={isMenuOpen}
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-
-        <div
-          className={cn(
-            "fixed inset-0 bg-background/95 backdrop-blur-md z-40 flex flex-col items-center justify-center",
-            "transition-all duration-300 md:hidden",
-            isMenuOpen
-              ? "opacity-100 pointer-events-auto"
-              : "opacity-0 pointer-events-none"
-          )}
-        >
-          <div className="flex flex-col space-y-8 text-xl">
-            {navItems.map((item, key) => (
+          {/* Desktop */}
+          <div className="hidden md:flex space-x-8 text-sm font-medium">
+            {navItems.map((item) => (
               <a
-                key={key}
+                key={item.href}
                 href={item.href}
                 className={cn(
-                  "text-foreground/80 hover:text-primary transition-colors duration-300",
-                  activeSection === item.href && "text-primary"
+                  "relative py-1 transition-colors",
+                  activeSection === item.href ? "text-primary" : "text-foreground/80 hover:text-foreground"
                 )}
-                onClick={() => setIsMenuOpen(false)}
               >
                 {item.name}
               </a>
             ))}
           </div>
+
+          {/* Mobile Hamburger */}
+          <button
+            onClick={() => setIsMenuOpen(true)}
+            className="md:hidden p-2 text-foreground hover:text-primary transition-colors"
+            aria-label="Open Menu"
+          >
+            <Menu size={28} />
+          </button>
         </div>
       </div>
+
+      {/* Mobile Slide Menu */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-[110] md:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => setIsMenuOpen(false)}
+          />
+
+          {/* Slide Panel */}
+          <div className="absolute right-0 top-0 h-full w-80 bg-background border-l border-border shadow-2xl translate-x-0">
+            <div className="flex flex-col h-full">
+              {/* Menu Header */}
+              <div className="flex items-center justify-between p-6 border-b">
+                <div className="flex items-center gap-3">
+                  <img src="/icons/a6.png" alt="Logo" className="h-10 w-10" />
+                  <span className="font-semibold">Anwar's Portfolio</span>
+                </div>
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="p-2 hover:bg-muted rounded-full"
+                >
+                  <X size={28} />
+                </button>
+              </div>
+
+              {/* Links */}
+              <div className="flex-1 p-6 space-y-2">
+                {navItems.map((item) => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={cn(
+                      "block px-6 py-4 rounded-2xl text-lg font-medium transition-all",
+                      activeSection === item.href
+                        ? "bg-primary/10 text-primary"
+                        : "hover:bg-muted text-foreground/80"
+                    )}
+                  >
+                    {item.name}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };

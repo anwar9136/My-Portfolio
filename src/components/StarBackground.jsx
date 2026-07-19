@@ -1,30 +1,18 @@
-import React from "react";
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
-const EDGE_MARGIN = 15; // vw units past the edge, so it enters/exits smoothly
-const VERTICAL_DRIFT_RANGE = 15; // max vertical drift, in vh, across a flight
-
-// ADDED: approximate navbar height in px (covers both the py-5 "top of page"
-// state and the py-3 "scrolled" state, plus a little buffer) — flying
-// objects are kept below this line so they never pass behind the navbar's
-// backdrop-blur, which was blurring them as they crossed underneath it.
+const EDGE_MARGIN = 15;
+const VERTICAL_DRIFT_RANGE = 15;
 const NAVBAR_SAFE_HEIGHT_PX = 100;
 
-// both objects can appear anywhere across nearly the full screen height,
-// EXCEPT the reserved strip at the top for the navbar
 const FULL_RANGE = { min: 8, max: 92 };
 
-// ADDED: converts the fixed navbar pixel height into a vh percentage based
-// on the CURRENT viewport, so this works correctly on any screen size
-// (a 100px navbar is a much bigger percentage of a short phone screen than
-// a tall desktop one).
 const getSafeMinY = () => {
   const navPercent = (NAVBAR_SAFE_HEIGHT_PX / window.innerHeight) * 100;
   return Math.max(FULL_RANGE.min, navPercent);
 };
 
 const randomFlightPath = (direction) => {
-  const safeMin = getSafeMinY(); // ADDED: never start/drift above the navbar
+  const safeMin = getSafeMinY();
   const startY = Math.random() * (FULL_RANGE.max - safeMin) + safeMin;
   const drift = Math.random() * VERTICAL_DRIFT_RANGE * 2 - VERTICAL_DRIFT_RANGE;
   const endY = Math.min(FULL_RANGE.max, Math.max(safeMin, startY + drift));
@@ -41,7 +29,6 @@ const randomFlightPath = (direction) => {
   };
 };
 
-// each flyer's own config (direction, facing angle, speed, image, size)
 const FLYERS = {
   astronaut: {
     direction: "ltr",
@@ -49,7 +36,8 @@ const FLYERS = {
     minDuration: 14,
     maxDuration: 24,
     src: "/icons/a1.png",
-    width: 80,
+    width: 80,        // Desktop
+    mobileWidth: 48,  // Mobile
   },
   rocket: {
     direction: "rtl",
@@ -57,16 +45,14 @@ const FLYERS = {
     minDuration: 7,
     maxDuration: 12,
     src: "/icons/a7.png",
-    width: 130, // CHANGED: bumped up from 70px — was too small
+    width: 130,       // Desktop
+    mobileWidth: 72,  // Mobile - adjust if needed
   },
 };
 
 export const StarBackground = () => {
   const [stars, setStars] = useState([]);
-  const resizeTimeout = useRef(null);
-
-  // CHANGED: single flight state instead of two independent ones — only
-  // one object is ever on screen at a time now, alternating between them
+  const [isMobile, setIsMobile] = useState(false);
   const [current, setCurrent] = useState("astronaut");
   const [flight, setFlight] = useState({
     x: -EDGE_MARGIN,
@@ -75,9 +61,43 @@ export const StarBackground = () => {
     opacity: 0,
     posDuration: 0,
   });
+
+  const resizeTimeout = useRef(null);
   const timeoutsRef = useRef([]);
 
+  // Mobile detection
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Generate stars
+  useEffect(() => {
+    const generateStars = () => {
+      const numberOfStars = Math.floor(
+        (window.innerWidth * window.innerHeight) / 10000
+      );
+
+      const newStars = [];
+      for (let i = 0; i < numberOfStars; i++) {
+        newStars.push({
+          id: i,
+          size: Math.random() * 3 + 1,
+          x: Math.random() * 100,
+          y: Math.random() * 100,
+          opacity: Math.random() * 0.5 + 0.5,
+          animationDuration: Math.random() * 4 + 2,
+        });
+      }
+      setStars(newStars);
+    };
+
     generateStars();
 
     const handleResize = () => {
@@ -92,9 +112,7 @@ export const StarBackground = () => {
     };
   }, []);
 
-  // CHANGED: this now drives ONE flight at a time, then explicitly hands
-  // off to the other flyer only after the current one has fully faded out
-  // — this is what guarantees they never appear together.
+  // Flight logic
   useEffect(() => {
     const clearAll = () => timeoutsRef.current.forEach(clearTimeout);
 
@@ -120,8 +138,6 @@ export const StarBackground = () => {
         setFlight((prev) => ({ ...prev, opacity: 0 }));
       }, duration * 1000 + 50);
 
-      // CHANGED: after this one fully fades out (+ a pause), switch to the
-      // OTHER flyer — this alternation is what keeps them from overlapping
       const t3 = setTimeout(() => {
         const next = type === "astronaut" ? "rocket" : "astronaut";
         runFlight(next);
@@ -134,28 +150,8 @@ export const StarBackground = () => {
     return clearAll;
   }, []);
 
-  const generateStars = () => {
-    const numberOfStars = Math.floor(
-      (window.innerWidth * window.innerHeight) / 10000
-    );
-
-    const newStars = [];
-
-    for (let i = 0; i < numberOfStars; i++) {
-      newStars.push({
-        id: i,
-        size: Math.random() * 3 + 1,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        opacity: Math.random() * 0.5 + 0.5,
-        animationDuration: Math.random() * 4 + 2,
-      });
-    }
-
-    setStars(newStars);
-  };
-
   const config = FLYERS[current];
+  const currentWidth = isMobile ? config.mobileWidth : config.width;
 
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
@@ -174,8 +170,7 @@ export const StarBackground = () => {
         />
       ))}
 
-      {/* CHANGED: single img element, its src swaps depending on which
-          flyer is currently active — only one is ever rendered/visible */}
+      {/* Flying Object */}
       <img
         src={config.src}
         alt=""
@@ -183,7 +178,7 @@ export const StarBackground = () => {
           position: "absolute",
           left: flight.x + "%",
           top: flight.y + "%",
-          width: config.width + "px",
+          width: currentWidth + "px",
           height: "auto",
           opacity: flight.opacity,
           transform: `translate(-50%, -50%) rotate(${flight.angle}deg)`,
