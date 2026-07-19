@@ -1,4 +1,5 @@
 import {
+  Github,
   Instagram,
   Linkedin,
   Mail,
@@ -11,24 +12,49 @@ import {
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { supabase } from "@/lib/supabaseClient"; // ADDED: Supabase client
 
 export const ContactSection = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
     setIsSubmitting(true);
 
-    setTimeout(() => {
+    // ADDED: pull values straight off the form via FormData —
+    // no need for controlled inputs / useState per field
+    const formData = new FormData(e.target);
+    const name = formData.get("name");
+    const email = formData.get("email");
+    const message = formData.get("message");
+
+    // ADDED: insert one row into the "messages" table in Supabase
+    const { error } = await supabase
+      .from("messages")
+      .insert([{ name, email, message }]);
+
+    setIsSubmitting(false);
+
+    if (error) {
+      // ADDED: surface failures instead of silently pretending it worked
+      console.error("Supabase insert error:", error);
       toast({
-        title: "Message sent!",
-        description: "Thank you for your message. I'll get back to you soon.",
+        title: "Something went wrong",
+        description: "Your message couldn't be sent. Please try again.",
+        variant: "destructive",
       });
-      setIsSubmitting(false);
-    }, 1500);
+      return;
+    }
+
+    toast({
+      title: "Message sent!",
+      description: "Thank you for your message. I'll get back to you soon.",
+    });
+
+    e.target.reset(); // ADDED: clear the form after a successful submit
   };
+
   return (
     <section id="contact" className="py-24 px-4 relative bg-secondary/30">
       <div className="container mx-auto max-w-5xl">
@@ -94,13 +120,16 @@ export const ContactSection = () => {
               <h4 className="font-medium mb-4"> Connect With Me</h4>
               <div className="flex space-x-4 justify-center">
                 <a href="https://www.linkedin.com/in/anwar-basha-696796284/" target="_blank">
-                  <Linkedin />
+                  <Linkedin className="transition-transform duration-200 hover:scale-110" />
+                </a>
+                <a href="https://github.com/" target="_blank">
+                  <Github className="transition-transform duration-200 hover:scale-110" />
                 </a>
                 {/* <a href="#" target="_blank">
                   <Twitter />
                 </a> */}
-                <a href="#" target="_blank">
-                  <Instagram />
+                <a href="https://github.com/anwar9136?tab=repositories" target="_blank">
+                  <Instagram className="transition-transform duration-200 hover:scale-110" />
                 </a>
                 {/* <a href="#" target="_blank">
                   <Twitch />
@@ -109,13 +138,11 @@ export const ContactSection = () => {
             </div>
           </div>
 
-          <div
-            className="bg-card p-8 rounded-lg shadow-xs"
-            onSubmit={handleSubmit}
-          >
+          <div className="bg-card p-8 rounded-lg shadow-xs">
             <h3 className="text-2xl font-semibold mb-6"> Send a Message</h3>
 
-            <form className="space-y-6">
+            {/* CHANGED: onSubmit moved here (it does nothing on a <div>) */}
+            <form className="space-y-6" onSubmit={handleSubmit}>
               <div>
                 <label
                   htmlFor="name"

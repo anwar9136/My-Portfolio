@@ -1,33 +1,34 @@
 import { ArrowRight, ExternalLink, Github } from "lucide-react";
 
 const projects = [
+  
   {
     id: 1,
+    title: "Saree E-commerce",
+    description: "Built a production-style MERN e-commerce platform with secure JWT authentication, role-based access, product management, shopping cart, order tracking, Cloudinary image uploads, and Razorpay payment integration.",
+    image: "/projects/saree-app.png",
+    tags: ["MongoDB", "Express.js","React.js", "Node.js","Redux","Tailwind CSS"],
+    demoUrl: "https://mern-ecommerce-psi-seven.vercel.app/",
+    githubUrl: "https://github.com/anwar9136/mern-ecommerce",
+  },
+  {
+    id: 2,
+    title: "Coaching Management System",
+    description:
+      "Built a production-ready MERN Coaching Management System with secure role-based authentication, Courses, Lectures and Instructors management, RESTful APIs, and a centralized admin dashboard for streamlined coaching institute operations",
+    image: "/projects/coaching-app.png",
+    tags: ["MongoDB", "Express.js","React.js", "Node.js","Context Api","Tailwind CSS"],
+    demoUrl: "https://coaching-management-saas-kkql.vercel.app/login",
+    githubUrl: "https://github.com/anwar9136/coaching-management-saas",
+  },
+  {
+    id: 3,
     title: "Giphy GIF Exploration app",
     description: "Interactive GIF exploration app with trending GIFs, search, category filters, and favorites management using the Giphy API. Built with React, Tailwind CSS, and Context API for state management.",
     image: "/projects/GIF.png",
     tags: ["React", "TailwindCSS","Context API", "API"],
     demoUrl: "https://giffyweb.netlify.app/",
     githubUrl: "https://github.com/anwar9136/Giphy-web",
-  },
-  {
-    id: 2,
-    title: "Movie Explorer",
-    description: "Movie exploration app with search, detailed view, and favorites management using a public movie API.",
-    image: "/projects/movie-app.png",
-    tags: ["React", "TailwindCSS","Redux", "API"],
-    demoUrl: "https://movie-explorer-anwar.netlify.app/",
-    githubUrl: "https://github.com/anwar9136/react-movie-app",
-  },
-  {
-    id: 3,
-    title: "Todo App",
-    description:
-      "Task management app with add, edit, delete, and completion tracking features.",
-    image: "/projects/todo-app.png",
-    tags: ["React", "Context", "TailwindCSS"],
-    demoUrl: "https://todo-app-anwar.netlify.app/",
-    githubUrl: "https://github.com/anwar9136/todoApp",
   },
 ];
 
